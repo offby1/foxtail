@@ -1,0 +1,9 @@
+README.md
+.git
+.gitignore
+docker-compose.yml
+start.sh
+.env
+.env.local
+*.log
+.DS_Store

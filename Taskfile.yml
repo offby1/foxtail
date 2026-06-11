@@ -1,0 +1,63 @@
+version: '3'
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  check-docker:
+    internal: true
+    cmds:
+      - docker info > /dev/null 2>&1 || (echo "❌ Docker is not running. Start Docker Desktop and try again." && exit 1)
+
+  start:
+    desc: Retrieve auth key from 1Password and start the container
+    deps: [check-docker]
+    cmds:
+      - ./start.sh
+
+  debug:
+    desc: Start with verbose logging
+    deps: [check-docker]
+    cmds:
+      - DEBUG=true ./start.sh
+
+  stop:
+    desc: Stop and remove the container
+    deps: [check-docker]
+    cmds:
+      - docker-compose down
+
+  restart:
+    desc: Stop and restart the container
+    cmds:
+      - task: stop
+      - task: start
+
+  build:
+    desc: Rebuild the Docker image from scratch
+    deps: [check-docker]
+    cmds:
+      - docker-compose build --no-cache
+
+  logs:
+    desc: Stream container logs
+    cmds:
+      - docker-compose logs -f
+
+  status:
+    desc: Check running container processes
+    cmds:
+      - ./check-status.sh
+
+  test-auth:
+    desc: Validate 1Password CLI setup and auth key retrieval
+    cmds:
+      - ./test-auth-key.sh
+
+  tailscale-status:
+    desc: Show Tailscale connection status inside the container
+    cmds:
+      - docker-compose exec foxtail tailscale status

@@ -1,0 +1,32 @@
+services:
+  foxtail:
+    build: .
+    container_name: foxtail
+    environment:
+      # This will be injected by start.sh from 1Password
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      # Optional: Set a custom hostname for this device on your tailnet
+      - TAILSCALE_HOSTNAME=${TAILSCALE_HOSTNAME:-foxtail}
+      # Optional: Tailscale tags (comma-separated, e.g., "tag:docker,tag:browser")
+      - TAILSCALE_TAGS=${TAILSCALE_TAGS:-}
+      # Debug mode
+      - DEBUG=${DEBUG:-false}
+      # Kasm credentials — defaults used if not set in .env
+      - VNC_PW=${VNC_PW:-foxtail}
+      - VNC_VIEW_ONLY_PW=${VNC_VIEW_ONLY_PW:-viewonly}
+    ports:
+      # Kasm noVNC web interface
+      - "6901:6901"
+    shm_size: "512m"
+    dns:
+      - 100.100.100.100  # Tailscale MagicDNS
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    volumes:
+      # Persist Tailscale state (optional, for auth persistence)
+      - tailscale-state:/var/lib/tailscale
+    restart: unless-stopped
+
+volumes:
+  tailscale-state:
